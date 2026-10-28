@@ -21,6 +21,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'Api/Updater/AppUpdater.dart';
 import 'Core/Device/TvMode.dart';
+import 'Core/Startup/StartupWatchdog.dart';
 import 'Core/Downloads/DownloadEngine.dart';
 import 'Core/NetworkManager/NetworkManager.dart';
 import 'Core/Offline/OfflineMode.dart';
@@ -98,13 +99,26 @@ void main(List<String> args) async {
         runApp(const SplashApp());
       }
 
-      final watchdog = Timer(const Duration(seconds: 20), () {
-        runApp(
-          StartupFailureApp(
-            error: 'Startup is taking too long at: $_stage',
-            stackTrace: '',
-          ),
-        );
+      final started = Stopwatch()..start();
+      String? status;
+      final watchdog = Timer.periodic(const Duration(seconds: 1), (timer) {
+        switch (watchdogAction(started.elapsed, tv: isTv)) {
+          case WatchdogAction.none:
+            break;
+          case WatchdogAction.stillStarting:
+            final text = _stillStarting(_stage);
+            if (text == status) break;
+            status = text;
+            runApp(SplashApp(matchNative: true, status: text));
+          case WatchdogAction.failure:
+            timer.cancel();
+            runApp(
+              StartupFailureApp(
+                error: 'Startup is taking too long at: $_stage',
+                stackTrace: '',
+              ),
+            );
+        }
       });
       try {
         await init(args);
@@ -137,6 +151,16 @@ void main(List<String> args) async {
 }
 
 String _stage = 'launch';
+
+String _stillStarting(String stage) {
+  AppLocalizations strings;
+  try {
+    strings = lookupAppLocalizations(PlatformDispatcher.instance.locale);
+  } catch (_) {
+    strings = lookupAppLocalizations(const Locale('en'));
+  }
+  return strings.startupStillStarting(stage);
+}
 
 class StartupFailureApp extends StatelessWidget {
   final String error;

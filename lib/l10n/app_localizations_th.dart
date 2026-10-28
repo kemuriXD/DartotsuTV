@@ -7106,4 +7106,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get extensionsLoading => 'Loading extensions…';
+
+  @override
+  String startupStillStarting(String stage) {
+    return 'Still starting… $stage';
+  }
 }

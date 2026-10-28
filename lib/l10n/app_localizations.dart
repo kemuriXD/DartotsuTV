@@ -12772,6 +12772,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading extensions…'**
   String get extensionsLoading;
+
+  /// No description provided for @startupStillStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Still starting… {stage}'**
+  String startupStillStarting(String stage);
 }
 
 class _AppLocalizationsDelegate

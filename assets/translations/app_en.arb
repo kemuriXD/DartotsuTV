@@ -3623,5 +3623,13 @@
   "sourceOpenTitle": "Open title",
   "@sourceOpenTitle": {},
   "extensionsLoading": "Loading extensions…",
-  "@extensionsLoading": {}
+  "@extensionsLoading": {},
+  "startupStillStarting": "Still starting… {stage}",
+  "@startupStillStarting": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  }
 }
