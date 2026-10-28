@@ -19,14 +19,14 @@ class SplashApp extends StatefulWidget {
 
   static const _asset = 'assets/images/logo.png';
 
-  // Decoded before the first frame so the logo never blinks out after the native launch screen.
+  // The TV launch screen's own 576 px logo, small enough to decode before the first frame,
+  // so the logo never blinks out at the handoff.
+  static const _nativeAsset = 'assets/images/splash_logo.png';
+
   static Future<ui.Image?> decodeLogo() async {
     try {
-      final data = await rootBundle.load(_asset);
-      final codec = await ui.instantiateImageCodec(
-        data.buffer.asUint8List(),
-        targetWidth: 576,
-      );
+      final data = await rootBundle.load(_nativeAsset);
+      final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
       return (await codec.getNextFrame()).image;
     } catch (_) {
       return null;

@@ -2,7 +2,6 @@ import 'Core/Services/Api/IdMapper.dart';
 import 'Screen/Together/TogetherLink.dart';
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui show Image;
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'Screen/Settings/Sync/Data/SyncController.dart';
@@ -96,16 +95,14 @@ void main(List<String> args) async {
 
       String? status;
       var splashDone = false;
-      void showSplash(ui.Image? logo) {
+      final splashLogo = isTv ? await SplashApp.decodeLogo() : null;
+      void showSplash() {
         if (splashDone) return;
-        runApp(SplashApp(matchNative: true, status: status, logo: logo));
+        runApp(SplashApp(matchNative: true, status: status, logo: splashLogo));
       }
 
-      // The TV launch screen stays up until Flutter's first frame, so the splash only takes over
-      // once its logo is decoded, and not at all when init() finishes first.
-      final splashLogo = isTv ? SplashApp.decodeLogo() : null;
       if (isTv) {
-        unawaited(splashLogo!.then(showSplash));
+        showSplash();
       } else if (!Platform.isAndroid && !Platform.isIOS) {
         runApp(const SplashApp());
       }
@@ -119,7 +116,7 @@ void main(List<String> args) async {
             final text = _stillStarting(_stage);
             if (text == status) break;
             status = text;
-            unawaited(splashLogo!.then(showSplash));
+            showSplash();
           case WatchdogAction.failure:
             timer.cancel();
             splashDone = true;

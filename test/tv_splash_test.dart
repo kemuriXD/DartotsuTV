@@ -43,6 +43,15 @@ void main() {
     expect(logoSize(tester), const Size(192, 192));
   });
 
+  testWidgets('decodes the launch screen logo at its native size', (
+    tester,
+  ) async {
+    final logo = await tester.runAsync(SplashApp.decodeLogo);
+    expect(logo, isNotNull);
+    expect(logo!.width, 576);
+    expect(logo.height, 576);
+  });
+
   testWidgets('shows the startup status under the bar', (tester) async {
     await tester.pumpWidget(
       const SplashApp(matchNative: true, status: 'Still starting… bridge'),
