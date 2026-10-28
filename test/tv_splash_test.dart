@@ -43,6 +43,14 @@ void main() {
     expect(logoSize(tester), const Size(192, 192));
   });
 
+  testWidgets('shows the startup status under the bar', (tester) async {
+    await tester.pumpWidget(
+      const SplashApp(matchNative: true, status: 'Still starting… bridge'),
+    );
+    expect(find.text('Still starting… bridge'), findsOneWidget);
+    expect(logoSize(tester), const Size(192, 192));
+  });
+
   testWidgets('default splash keeps its entrance', (tester) async {
     await tester.pumpWidget(const SplashApp());
     expect(logoSize(tester), const Size(144, 144));
