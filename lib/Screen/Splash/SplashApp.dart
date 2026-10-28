@@ -77,7 +77,7 @@ class _SplashAppState extends State<SplashApp>
             builder: (context, entrance, child) => AnimatedBuilder(
               animation: _c,
               builder: (context, _) {
-                final breathe = math.sin(_c.value * 2 * math.pi);
+                final breathe = native ? 0.0 : math.sin(_c.value * 2 * math.pi);
                 final scale = (0.8 + 0.2 * entrance) * (1 + 0.025 * breathe);
                 return Column(
                   mainAxisSize: MainAxisSize.min,

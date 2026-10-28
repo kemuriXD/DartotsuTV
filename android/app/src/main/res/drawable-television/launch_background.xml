@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Same artwork, size and position as SplashApp(matchNative: true), which takes over from this frame. -->
+<!-- Same artwork, size and position as SplashApp(matchNative: true), which takes over from this frame:
+     the logo centred, the empty loading-bar track 132dp below the centre (a 267dp top inset centres it there). -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <color android:color="#141218" />
@@ -9,4 +10,14 @@
         android:height="192dp"
         android:drawable="@drawable/splash_logo"
         android:gravity="center" />
+    <item
+        android:width="120dp"
+        android:height="3dp"
+        android:gravity="center"
+        android:top="267dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#339A82DB" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
 </layer-list>

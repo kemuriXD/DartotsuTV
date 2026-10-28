@@ -31,6 +31,12 @@ void main() {
     expect(logoScale(tester), closeTo(1, 0.001));
   });
 
+  testWidgets('the TV logo stays still while the bar moves', (tester) async {
+    await tester.pumpWidget(const SplashApp(matchNative: true));
+    await tester.pump(const Duration(milliseconds: 450));
+    expect(logoScale(tester), closeTo(1, 0.001));
+  });
+
   testWidgets('a pre-decoded logo is painted on the first frame', (
     tester,
   ) async {
