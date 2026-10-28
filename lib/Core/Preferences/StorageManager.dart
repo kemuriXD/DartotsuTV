@@ -1,14 +1,24 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../Device/TvMode.dart';
 import 'PrefManager.dart';
 import '../../Logger.dart';
 
 class StorageManager {
+  @visibleForTesting
+  static Future<bool> Function()? debugHas, debugRequest;
+
+  // A TV opens the system-wide "All files access" list, so lookups only check; onboarding asks once.
+  static Future<bool> storageAccess() => isTv
+      ? (debugHas ?? hasStoragePermission)()
+      : (debugRequest ?? requestPermission)();
+
   static Future<Directory?> getDirectory({
     String? subPath,
     bool useCustomPath = false,
@@ -37,7 +47,7 @@ class StorageManager {
       }
 
       if (Platform.isAndroid) {
-        final hasPermission = await requestPermission();
+        final hasPermission = await storageAccess();
 
         if (!hasPermission || useSystemPath) {
           final base = withAppRoot(appDir.path);
