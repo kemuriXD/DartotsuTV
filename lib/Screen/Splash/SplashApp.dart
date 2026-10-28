@@ -4,7 +4,13 @@ import 'dart:ui' show Brightness, PlatformDispatcher;
 import 'package:flutter/widgets.dart';
 
 class SplashApp extends StatefulWidget {
-  const SplashApp({super.key});
+  final bool matchNative;
+  final String? status;
+
+  const SplashApp({super.key, this.matchNative = false, this.status});
+
+  @visibleForTesting
+  static const logoKey = ValueKey('splashLogo');
 
   @override
   State<SplashApp> createState() => _SplashAppState();
@@ -15,6 +21,7 @@ class _SplashAppState extends State<SplashApp>
   static const _light = Color(0xFFFBF8FF);
   static const _dark = Color(0xFF141218);
   static const _accent = Color(0xFF9A82DB);
+  static const _statusHeight = 40.0;
 
   late final AnimationController _c = AnimationController(
     vsync: this,
@@ -29,15 +36,18 @@ class _SplashAppState extends State<SplashApp>
 
   @override
   Widget build(BuildContext context) {
+    final native = widget.matchNative;
     final dark =
+        native ||
         PlatformDispatcher.instance.platformBrightness == Brightness.dark;
+    final logo = native ? 192.0 : 144.0;
     return Directionality(
       textDirection: TextDirection.ltr,
       child: ColoredBox(
         color: dark ? _dark : _light,
         child: Center(
           child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: 1),
+            tween: Tween(begin: native ? 1 : 0, end: 1),
             duration: const Duration(milliseconds: 650),
             curve: Curves.easeOutBack,
             builder: (context, entrance, child) => AnimatedBuilder(
@@ -48,6 +58,8 @@ class _SplashAppState extends State<SplashApp>
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Keeps the logo at the screen centre, where the native launch screen drew it.
+                    if (native) const SizedBox(height: 39 + _statusHeight),
                     Opacity(
                       opacity: entrance.clamp(0.0, 1.0),
                       child: Transform.scale(
@@ -55,10 +67,11 @@ class _SplashAppState extends State<SplashApp>
                         child: ClipOval(
                           child: Image.asset(
                             'assets/images/logo.png',
-                            width: 144,
-                            height: 144,
+                            key: SplashApp.logoKey,
+                            width: logo,
+                            height: logo,
                             fit: BoxFit.cover,
-                            cacheWidth: 432,
+                            cacheWidth: (logo * 3).round(),
                             filterQuality: FilterQuality.medium,
                           ),
                         ),
@@ -90,6 +103,21 @@ class _SplashAppState extends State<SplashApp>
                         ),
                       ),
                     ),
+                    if (native)
+                      SizedBox(
+                        height: _statusHeight,
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Text(
+                            widget.status ?? '',
+                            style: TextStyle(
+                              color: (dark ? _light : _dark).withValues(
+                                alpha: 0.7,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 );
               },

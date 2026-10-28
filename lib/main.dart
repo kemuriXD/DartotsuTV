@@ -92,7 +92,11 @@ void main(List<String> args) async {
         softCrash: true,
       );
 
-      if (!Platform.isAndroid && !Platform.isIOS) runApp(const SplashApp());
+      if (isTv) {
+        runApp(const SplashApp(matchNative: true));
+      } else if (!Platform.isAndroid && !Platform.isIOS) {
+        runApp(const SplashApp());
+      }
 
       final watchdog = Timer(const Duration(seconds: 20), () {
         runApp(
