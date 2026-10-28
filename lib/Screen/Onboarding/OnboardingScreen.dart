@@ -509,7 +509,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         (
           storage,
           Icons.folder_rounded,
-          getString.permStorage,
+          storage == Permission.storage
+              ? getString.sectionStorage
+              : getString.permStorage,
           getString.permStorageDesc,
         ),
       (
