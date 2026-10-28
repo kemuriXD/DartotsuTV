@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The logo circle is 2/3 of splash_logo's 288dp viewport: 192dp, the size of the Android 12 splash icon. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <color android:color="#141218" />
+    </item>
+    <item
+        android:drawable="@drawable/splash_logo"
+        android:gravity="center" />
+</layer-list>
