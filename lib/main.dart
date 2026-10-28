@@ -20,6 +20,7 @@ import 'package:rhttp/rhttp.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'Api/Updater/AppUpdater.dart';
+import 'Core/Device/TvMode.dart';
 import 'Core/Downloads/DownloadEngine.dart';
 import 'Core/NetworkManager/NetworkManager.dart';
 import 'Core/Offline/OfflineMode.dart';
@@ -59,6 +60,8 @@ void main(List<String> args) async {
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      await TvMode.init();
+      logger('TV mode: $isTv');
       PaintingBinding.instance.imageCache
         ..maximumSizeBytes =
             (Platform.isAndroid || Platform.isIOS ? 96 : 192) << 20

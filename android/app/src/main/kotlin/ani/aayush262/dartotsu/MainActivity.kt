@@ -1,8 +1,10 @@
 package ani.aayush262.dartotsu
 
+import android.app.UiModeManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.content.pm.PackageManager
 import android.content.pm.verify.domain.DomainVerificationManager
@@ -36,6 +38,11 @@ class MainActivity : FlPiPActivity() {
                 result.success(null)
             }
         }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/device")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "isTv") return@setMethodCallHandler result.notImplemented()
+                result.success(isTv())
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/network")
             .setMethodCallHandler { call, result ->
                 if (call.method != "isMetered") return@setMethodCallHandler result.notImplemented()
@@ -129,6 +136,13 @@ class MainActivity : FlPiPActivity() {
                     }
                 }
             }
+    }
+
+    private fun isTv(): Boolean {
+        val uiMode = getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
+        return uiMode?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION ||
+            packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
+            packageManager.hasSystemFeature("amazon.hardware.fire_tv")
     }
 
     private fun biometricAvailable(): Boolean {
