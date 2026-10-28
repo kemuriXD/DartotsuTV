@@ -45,7 +45,7 @@
 
     <application
         android:name="${applicationName}"
-        android:banner="@mipmap/ic_banner_foreground"
+        android:banner="@mipmap/ic_banner"
         android:icon="@mipmap/ic_launcher"
         android:label="Dartotsu"
         android:requestLegacyExternalStorage="true"
