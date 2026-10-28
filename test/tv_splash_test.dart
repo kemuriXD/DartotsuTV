@@ -31,6 +31,18 @@ void main() {
     expect(logoScale(tester), closeTo(1, 0.001));
   });
 
+  testWidgets('a pre-decoded logo is painted on the first frame', (
+    tester,
+  ) async {
+    final logo = (await tester.runAsync(
+      () => createTestImage(width: 576, height: 576),
+    ))!;
+    await tester.pumpWidget(SplashApp(matchNative: true, logo: logo));
+    final raw = tester.widget<RawImage>(find.byKey(SplashApp.logoKey));
+    expect(raw.image, same(logo));
+    expect(logoSize(tester), const Size(192, 192));
+  });
+
   testWidgets('default splash keeps its entrance', (tester) async {
     await tester.pumpWidget(const SplashApp());
     expect(logoSize(tester), const Size(144, 144));

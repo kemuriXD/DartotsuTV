@@ -2,6 +2,7 @@ import 'Core/Services/Api/IdMapper.dart';
 import 'Screen/Together/TogetherLink.dart';
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui show Image;
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'Screen/Settings/Sync/Data/SyncController.dart';
@@ -93,14 +94,23 @@ void main(List<String> args) async {
         softCrash: true,
       );
 
+      String? status;
+      var splashDone = false;
+      void showSplash(ui.Image? logo) {
+        if (splashDone) return;
+        runApp(SplashApp(matchNative: true, status: status, logo: logo));
+      }
+
+      // The TV launch screen stays up until Flutter's first frame, so the splash only takes over
+      // once its logo is decoded, and not at all when init() finishes first.
+      final splashLogo = isTv ? SplashApp.decodeLogo() : null;
       if (isTv) {
-        runApp(const SplashApp(matchNative: true));
+        unawaited(splashLogo!.then(showSplash));
       } else if (!Platform.isAndroid && !Platform.isIOS) {
         runApp(const SplashApp());
       }
 
       final started = Stopwatch()..start();
-      String? status;
       final watchdog = Timer.periodic(const Duration(seconds: 1), (timer) {
         switch (watchdogAction(started.elapsed, tv: isTv)) {
           case WatchdogAction.none:
@@ -109,9 +119,10 @@ void main(List<String> args) async {
             final text = _stillStarting(_stage);
             if (text == status) break;
             status = text;
-            runApp(SplashApp(matchNative: true, status: text));
+            unawaited(splashLogo!.then(showSplash));
           case WatchdogAction.failure:
             timer.cancel();
+            splashDone = true;
             runApp(
               StartupFailureApp(
                 error: 'Startup is taking too long at: $_stage',
@@ -124,6 +135,7 @@ void main(List<String> args) async {
         await init(args);
       } catch (e, st) {
         watchdog.cancel();
+        splashDone = true;
         logger('Startup failed at $_stage: $e\n$st', logLevel: LogLevel.error);
         runApp(
           StartupFailureApp(
@@ -134,6 +146,7 @@ void main(List<String> args) async {
         return;
       }
       watchdog.cancel();
+      splashDone = true;
 
       runApp(const MyApp());
     },

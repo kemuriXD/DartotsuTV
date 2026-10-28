@@ -1,13 +1,37 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui show Image, instantiateImageCodec;
 import 'dart:ui' show Brightness, PlatformDispatcher;
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class SplashApp extends StatefulWidget {
   final bool matchNative;
   final String? status;
+  final ui.Image? logo;
 
-  const SplashApp({super.key, this.matchNative = false, this.status});
+  const SplashApp({
+    super.key,
+    this.matchNative = false,
+    this.status,
+    this.logo,
+  });
+
+  static const _asset = 'assets/images/logo.png';
+
+  // Decoded before the first frame so the logo never blinks out after the native launch screen.
+  static Future<ui.Image?> decodeLogo() async {
+    try {
+      final data = await rootBundle.load(_asset);
+      final codec = await ui.instantiateImageCodec(
+        data.buffer.asUint8List(),
+        targetWidth: 576,
+      );
+      return (await codec.getNextFrame()).image;
+    } catch (_) {
+      return null;
+    }
+  }
 
   @visibleForTesting
   static const logoKey = ValueKey('splashLogo');
@@ -65,15 +89,24 @@ class _SplashAppState extends State<SplashApp>
                       child: Transform.scale(
                         scale: scale,
                         child: ClipOval(
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            key: SplashApp.logoKey,
-                            width: logo,
-                            height: logo,
-                            fit: BoxFit.cover,
-                            cacheWidth: (logo * 3).round(),
-                            filterQuality: FilterQuality.medium,
-                          ),
+                          child: widget.logo != null
+                              ? RawImage(
+                                  key: SplashApp.logoKey,
+                                  image: widget.logo,
+                                  width: logo,
+                                  height: logo,
+                                  fit: BoxFit.cover,
+                                  filterQuality: FilterQuality.medium,
+                                )
+                              : Image.asset(
+                                  SplashApp._asset,
+                                  key: SplashApp.logoKey,
+                                  width: logo,
+                                  height: logo,
+                                  fit: BoxFit.cover,
+                                  cacheWidth: (logo * 3).round(),
+                                  filterQuality: FilterQuality.medium,
+                                ),
                         ),
                       ),
                     ),
