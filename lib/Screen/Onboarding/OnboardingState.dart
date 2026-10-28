@@ -2,24 +2,34 @@ import '../../Utils/Functions/NavigateToScreen.dart';
 import 'dart:async';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../Core/Device/TvMode.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import '../Login/LoginScreen.dart';
 
+List<Permission> onboardingPermissions({
+  required bool tv,
+  required int sdkInt,
+}) => [
+  Permission.notification,
+  if (!tv || sdkInt >= 30)
+    Permission.manageExternalStorage
+  else
+    Permission.storage,
+  Permission.requestInstallPackages,
+  if (!tv) Permission.ignoreBatteryOptimizations,
+];
+
 class OnboardingState extends ScreenState {
   static final pageCount = Platform.isAndroid ? 5 : 4;
 
-  static final permissions = <Permission>[
-    Permission.notification,
-    Permission.manageExternalStorage,
-    Permission.requestInstallPackages,
-    Permission.ignoreBatteryOptimizations,
-  ];
+  final permissions = onboardingPermissions(tv: false, sdkInt: 0).liveList;
 
   final granted = <Permission, bool>{}.liveMap;
 
@@ -30,6 +40,10 @@ class OnboardingState extends ScreenState {
   }
 
   Future<void> refreshPermissions() async {
+    if (isTv) {
+      final sdk = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
+      permissions.assignAll(onboardingPermissions(tv: true, sdkInt: sdk));
+    }
     for (final p in permissions) {
       granted[p] = await p.isGranted;
     }

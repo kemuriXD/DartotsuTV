@@ -502,12 +502,16 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         getString.permNotifications,
         getString.permNotificationsDesc,
       ),
-      (
+      for (final storage in [
         Permission.manageExternalStorage,
-        Icons.folder_rounded,
-        getString.permStorage,
-        getString.permStorageDesc,
-      ),
+        Permission.storage,
+      ])
+        (
+          storage,
+          Icons.folder_rounded,
+          getString.permStorage,
+          getString.permStorageDesc,
+        ),
       (
         Permission.requestInstallPackages,
         Icons.system_update_rounded,
@@ -528,47 +532,48 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       body: getString.onboardingPermsBody,
       children: [
         for (final (permission, icon, name, desc) in items)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: SectionCard(
-              child: Row(
-                children: [
-                  Icon(icon, color: theme.colorScheme.primary),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
+          if (state.permissions.contains(permission))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: SectionCard(
+                child: Row(
+                  children: [
+                    Icon(icon, color: theme.colorScheme.primary),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        Text(
-                          desc,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+                          Text(
+                            desc,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (state.granted[permission] == true)
-                    Icon(
-                      Icons.check_circle_rounded,
-                      color: theme.colorScheme.primary,
-                    )
-                  else
-                    FilledButton.tonal(
-                      onPressed: () => state.grant(permission),
-                      child: Text(getString.permGrant),
-                    ),
-                ],
+                    const SizedBox(width: 8),
+                    if (state.granted[permission] == true)
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: theme.colorScheme.primary,
+                      )
+                    else
+                      FilledButton.tonal(
+                        onPressed: () => state.grant(permission),
+                        child: Text(getString.permGrant),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
       ],
     );
   }
